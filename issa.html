@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Population & Statistics</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        input { padding: 10px; width: 250px; margin-bottom: 10px; }
+        button { padding: 10px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>World Population & Statistics</h1>
+    <p>Search for country details</p>
+
+    <input type="text" id="countryInput" placeholder="Enter country name">
+    <button onclick="fetchCountryData()">Get Info</button>
+
+    <div id="results"></div> 
+
+    <script>
+        // Extra info for specific countries
+        let extraInfo = {
+            "Mali": { food: "Djouka", culture: "Music & Dance", dance: "Bamana Dance, Sogonikun(Hunter Dance)", celebrity: "Assimi Goita" },
+            "France": { food: "Croissant", culture: "Fashion & Art", dance: "Ballet", celebrity: "Napoleon Bonaparte" },
+            "India": { food: "Biryani", culture: "Bollywood", dance: "Bharatanatyam", celebrity: "Shah Rukh Khan" },
+            "Japan": { food: "Sushi", culture: "Samurai & Anime", dance: "Bon Odori", celebrity: "Hayao Miyazaki" },
+            "USA": { food: "Burger", culture: "Hollywood", dance: "Hip-Hop", celebrity: "Elvis Presley" }
+        };
+
+        async function fetchCountryData() {
+            let country = document.getElementById("countryInput").value.trim();
+            if (!country) return alert("Please enter a country name");
+            
+            let apiURL = `https://restcountries.com/v3.1/name/${country}`;
+            
+            try {
+                let response = await fetch(apiURL);
+                if (!response.ok) throw new Error("Country not found");
+
+                let data = await response.json();
+                let countryInfo = data[0];
+                
+                let name = countryInfo.name.common;
+                let population = countryInfo.population;
+                let capital = countryInfo.capital ? countryInfo.capital[0] : "N/A";
+                let flag = countryInfo.flags ? countryInfo.flags.png : "";
+
+                // Get additional information for the country
+                let food = extraInfo[name]?.food || "Unknown";
+                let culture = extraInfo[name]?.culture || "Unknown";
+                let dance = extraInfo[name]?.dance || "Unknown";
+                let celebrity = extraInfo[name]?.celebrity || "Unknown";
+                
+                document.getElementById("results").innerHTML = `
+                    <h2>${name}</h2>
+                    <img src="${flag}" width="100" onerror="this.style.display='none'">
+                    <p><strong>Capital:</strong> ${capital}</p>
+                    <p><strong>Population:</strong> ${population.toLocaleString()}</p>
+                    <p><strong>Popular Food:</strong> ${food}</p>
+                    <p><strong>Culture:</strong> ${culture}</p>
+                    <p><strong>Traditional Dance:</strong> ${dance}</p>
+                    <p><strong>Famous Celebrity:</strong> ${celebrity}</p>
+                `;
+            } catch (error) {
+                document.getElementById("results").innerHTML = `<p style="color:red;">Country not found. Please check the spelling or try another country.</p>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
